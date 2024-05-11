@@ -91,7 +91,7 @@ void loop() {
 
 
   // Increase fan speed if temperature or humidity is too high
-  if (temperature > 50 || humidity > 96) {
+  if (temperature > 23 || humidity > 96) {
     // Increase fan speed
     analogWrite(fanPin1, 100); 
   }
