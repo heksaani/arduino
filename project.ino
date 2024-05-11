@@ -1,4 +1,8 @@
 /*!
+ * ~~~Automated Green House ~~~
+
+
+ // Temperature and Humidity:
  * @file  getHumidityAndTemperature.ino
  * @brief  DFRobot's SHT20 Humidity And Temperature Sensor Module as a base for automated green house 
  * @details  This example demonstrates how to read the user registers to display resolution and other settings.
@@ -13,22 +17,28 @@
  * @date  2021-12-03
  * @url  https://github.com/DFRobot/DFRobot_SHT20
  * 
- */ 
 
+ //
+ */ 
  // error rate in the humidity sensor +-3%
  // temperature 18-23 C and humidity 88<x<96
 #include "DFRobot_SHT20.h"
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-const int slowFanSpeed = 60;
+// this is the default speed of the fan to keep the air flowing
+const int slowFanSpeed = 20;
+// Arctic fans 2 both connected through bread board using PWM pin 9
+const int fanPin1 = 9;
 
-// Define Arctic fan pins connected to the breadboard
-// from  Arduino pins 3 and 4
-const int fanPin1 = 3;
-const int fanPin2 = 4; 
 
+// To see the current temperature and humidity we use LCD screen 
 LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address 0x27, 16 column and 2 rows
+
+// for the light source we use 
+// instructions for the from here: https://www.electronicshub.org/arduino-controlled-power-outlet/
+// code and Arduino wiring from here: https://lastminuteengineers.com/one-channel-relay-module-arduino-tutorial/
+const int RelayPin = 6;
 
 
 /**
@@ -44,13 +54,15 @@ DFRobot_SHT20 sht20(&Wire, SHT20_I2C_ADDR);
 void setup()
 {
   Serial.begin(9600);
-  // Init SHT20 Sensor
+  // Configures the specified pin to behave either as an input or an output
+  // Set RelayPin as an output pin
+	pinMode(RelayPin, OUTPUT);
+  // Init SHT20 Sensor for temperature and humidity
   sht20.initSHT20();
 
   lcd.init(); // initialize the lcd
   lcd.backlight();
   pinMode(fanPin1, OUTPUT);
-  pinMode(fanPin2, OUTPUT);
   delay(100);
   Serial.println("Sensor init finish!");
   /**
@@ -61,19 +73,29 @@ void setup()
   sht20.checkSHT20();
 }
 
+
 void loop() {
   // Read temperature and humidity
   float humidity = sht20.readHumidity();
   float temperature = sht20.readTemperature();
+  // write the slow fan speed to pin
   analogWrite(fanPin1, slowFanSpeed);
-  analogWrite(fanPin2, slowFanSpeed);
+
+  if(humidity < 85 ){
+    digitalWrite(RelayPin, HIGH); // relay on, wiring is upside down = ) 
+    delay(10000); 
+  }
+  if (humidity > 93) { 
+    digitalWrite(RelayPin, LOW); // turns the relay of
+  } 
+
 
   // Increase fan speed if temperature or humidity is too high
   if (temperature > 50 || humidity > 96) {
     // Increase fan speed
-    analogWrite(fanPin1, 255); // Set first fan to maximum speed
-    analogWrite(fanPin2, 255); // Set second fan to maximum speed
+    analogWrite(fanPin1, 100); 
   }
+
   // Display temperature and humidity on LCD
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -87,9 +109,8 @@ void loop() {
   lcd.print(humidity, 1); // Display humidity with one decimal place
   lcd.print("%");
 
-
   // Delay for 5 seconds before looping back to displaying temperature and humidity
   delay(5000);
 
-
+ 
 }
