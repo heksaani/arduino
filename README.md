@@ -1,4 +1,4 @@
-🌱 Arduino Greenhouse Automation
+# 🌱 Arduino Greenhouse Automation
 An automated greenhouse monitoring and ventilation system built with the Arduino UNO R4 WiFi.
 The system continuously reads temperature and humidity from a sensor, displays live readings on a monitor, and automatically controls fans based on the humidity levels — keeping the greenhouse environment optimal for plants.
 Features
@@ -7,6 +7,6 @@ Features
 📺 Live readings displayed on screen
 💨 Automatic fan control triggered by humidity thresholds
 
-# Arduino diagram 
+## Arduino diagram 
 
 ![diagram](https://github.com/heksaani/arduino/blob/main/wiring%20diagram.png)
